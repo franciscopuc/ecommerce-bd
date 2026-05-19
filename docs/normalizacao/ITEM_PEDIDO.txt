@@ -1,0 +1,32 @@
+E3 — NORMALIZAÇÃO
+
+TABELA: ITEM_PEDIDO
+
+Esquema original:
+ITEM_PEDIDO(id_item, id_pedido, id_produto, quantidade, preco_unitario, subtotal)
+
+Dependências funcionais:
+- id_item → id_pedido, id_produto, quantidade, preco_unitario, subtotal
+- (quantidade, preco_unitario) → subtotal
+
+1FN:
+Todos os atributos são atômicos.
+
+2FN:
+Chave primária simples, sem dependências parciais.
+
+3FN:
+Existe dependência:
+subtotal depende de atributos não-chave (quantidade e preco_unitario)
+
+Decomposição:
+ITEM_PEDIDO(id_item, id_pedido, id_produto, quantidade, preco_unitario)
+
+Subtotal:
+subtotal = quantidade * preco_unitario
+
+BCNF:
+Após remoção do subtotal, a tabela atende BCNF.
+
+Observação:
+Alguns sistemas mantêm subtotal por performance em consultas.

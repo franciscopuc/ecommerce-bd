@@ -1,0 +1,32 @@
+E3 — NORMALIZAÇÃO
+
+TABELA: CLIENTE
+
+Esquema original:
+CLIENTE(id_cliente, nome, email, senha, cpf, rua, numero, complemento, bairro, cep)
+
+Dependências funcionais:
+- id_cliente → nome, email, senha, cpf, rua, numero, complemento, bairro, cep
+- cpf → id_cliente, nome, email, senha, rua, numero, complemento, bairro, cep
+- email → id_cliente, nome, senha, cpf, rua, numero, complemento, bairro, cep
+- cep → bairro
+
+1FN:
+Todos os atributos são atômicos.
+
+2FN:
+Chave primária simples, sem dependências parciais.
+
+3FN:
+Existe dependência transitiva:
+id_cliente → cep → bairro
+
+Logo:
+id_cliente → bairro
+
+Decomposição:
+CLIENTE(id_cliente, nome, email, senha, cpf, rua, numero, complemento, cep)
+CEP(cep, bairro)
+
+BCNF:
+Após decomposição, todas as dependências possuem determinantes como chave candidata.
