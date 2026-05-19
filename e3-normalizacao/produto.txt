@@ -1,0 +1,21 @@
+E3 — NORMALIZAÇÃO
+
+TABELA: PRODUTO
+
+Esquema original:
+PRODUTO(id_produto, nome, descricao, preco, preco_comparacao, id_categoria)
+
+Dependência funcional:
+- id_produto → nome, descricao, preco, preco_comparacao, id_categoria
+
+1FN:
+Todos os atributos são atômicos.
+
+2FN:
+Chave primária simples, sem dependências parciais.
+
+3FN:
+Não existem dependências transitivas.
+
+BCNF:
+Todas as dependências possuem a chave primária como determinante.

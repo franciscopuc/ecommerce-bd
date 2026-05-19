@@ -1,0 +1,130 @@
+DECISÕES DE MODELAGEM - MODELO LÓGICO BRMW
+
+1. CONTEXTO GERAL
+O modelo lógico representa a transformação do modelo conceitual de e-commerce para uma estrutura relacional, com definição de tabelas, chaves primárias, chaves estrangeiras e tabelas associativas.
+
+2. DECISÕES PRINCIPAIS
+
+2.1 CLIENTE
+- A entidade Cliente foi convertida em tabela própria.
+- Foi definida a chave primária id_cliente.
+- Os atributos nome, email, senha, endereco e cpf foram mantidos na tabela Cliente.
+- O CPF foi mantido como atributo identificador do cliente, devendo ser tratado como único.
+- O relacionamento entre Cliente e Pedido foi implementado por chave estrangeira em Pedido.
+- Ponto de atenção: no diagrama lógico aparecem campos idPedido como FK em Cliente. Essa decisão deve ser revista, pois em uma relação 1:N entre Cliente e Pedido a chave estrangeira deve ficar em Pedido, não em Cliente.
+
+2.2 PEDIDO
+- Pedido foi mantido como tabela central do fluxo comercial.
+- Foi definida a chave primária id_pedido.
+- Foram mantidos os atributos valor_total, status e data.
+- A tabela Pedido recebeu id_cliente como chave estrangeira, representando que cada pedido pertence a um cliente.
+- A tabela Pedido recebeu idCupom como chave estrangeira opcional, permitindo pedido com ou sem cupom.
+- Ponto de atenção: o campo idProduto aparece em Pedido, mas a relação entre Pedido e Produto já é resolvida por Item Pedido. Para evitar redundância, idProduto deve permanecer apenas em Item Pedido.
+
+2.3 ITEM PEDIDO
+- Item Pedido foi criado como tabela associativa entre Pedido e Produto.
+- A tabela resolve o relacionamento N:N entre Pedido e Produto.
+- Foram definidas as chaves estrangeiras idPedido e idProduto.
+- Foram mantidos os atributos quantidade, preco_unitario e sub_total.
+- A presença de preco_unitario permite preservar o preço praticado no momento da compra, mesmo que o preço do produto seja alterado depois.
+- Recomenda-se usar chave primária composta por idPedido e idProduto ou criar um identificador próprio para o item.
+
+2.4 PRODUTO
+- Produto foi convertido em tabela própria.
+- Foi definida a chave primária id_produto.
+- Foram mantidos os atributos nome, descricao, preco e preco_comparacao.
+- Produto recebeu idCategoria como chave estrangeira, indicando que cada produto pertence a uma categoria.
+- Produto recebeu idEstoque como chave estrangeira, indicando vínculo com o controle de estoque.
+- Ponto de atenção: se Estoque também possuir idProduto como FK, pode haver redundância na relação Produto-Estoque. O ideal é escolher apenas um lado para armazenar a FK, conforme a cardinalidade adotada.
+
+2.5 CATEGORIA
+- Categoria foi convertida em tabela independente.
+- Foi definida a chave primária id_categoria.
+- Foram mantidos os atributos nome e descricao.
+- O relacionamento Categoria-Produto foi implementado por idCategoria em Produto.
+- A decisão mantém a categoria reutilizável para vários produtos.
+
+2.6 ESTOQUE
+- Estoque foi mantido como tabela separada de Produto.
+- Foi definida a chave primária id_estoque.
+- Foram mantidos os atributos quantidade, estoque_minimo e estoque_maximo.
+- A separação permite evoluir o modelo para controle mais detalhado de estoque.
+- Ponto de atenção: no diagrama aparecem campos idProduto repetidos em Estoque. Deve existir apenas uma FK para Produto, se a decisão for armazenar o vínculo nesse lado.
+
+2.7 AVALIAÇÃO
+- Avaliação foi convertida em tabela própria.
+- Foi definida a chave primária id_avaliacao.
+- Foram mantidos os atributos nota, comentario e data.
+- A tabela recebeu idCliente como FK, indicando o cliente responsável pela avaliação.
+- A tabela recebeu idProduto como FK, indicando o produto avaliado.
+- Essa decisão permite que um produto possua várias avaliações e que um cliente faça várias avaliações.
+
+2.8 PAGAMENTO
+- Pagamento foi convertido em tabela própria.
+- Foi definida a chave primária id_pagamento.
+- Foram mantidos os atributos status, valor, data_pagamento e transacao_gateway.
+- A tabela Pagamento recebeu id_pedido como FK, vinculando o pagamento ao pedido.
+- A especialização do pagamento foi mantida por tabelas específicas para Cartão, Boleto e Pix.
+- Recomenda-se que as tabelas especializadas usem id_pagamento como PK e FK para Pagamento, garantindo a ligação direta com o pagamento genérico.
+
+2.9 PAGAMENTO CARTÃO
+- PagamentoCartao foi criado para armazenar atributos específicos de pagamento por cartão.
+- Foram definidos os campos numero_cartao, nome_titular, bandeira_cartao e quantidade_parcelas.
+- Essa separação evita campos nulos em Pagamento para métodos que não usam cartão.
+- Ponto de atenção: por segurança, numero_cartao não deve armazenar o número completo do cartão em uma implementação real.
+
+2.10 PAGAMENTO BOLETO
+- PagamentoBoleto foi criado para armazenar atributos específicos de boleto.
+- Foram definidos os campos codigo_barras e data_vencimento.
+- A tabela separa informações próprias do boleto dos demais métodos de pagamento.
+
+2.11 PAGAMENTO PIX
+- PagamentoPix foi criado para armazenar atributos específicos de Pix.
+- Foram definidos os campos chave_pix e data_expiracao.
+- A tabela separa informações próprias do Pix dos demais métodos de pagamento.
+
+2.12 CUPOM
+- Cupom foi convertido em tabela própria.
+- Foi definida a chave primária codigo.
+- Foram mantidos os atributos tipo_desconto, desconto, ativo e validade.
+- O relacionamento com Pedido foi implementado por idCupom em Pedido.
+- A cardinalidade permite que um cupom seja usado por vários pedidos e que um pedido tenha no máximo um cupom.
+
+2.13 LOGÍSTICA E ENTREGA
+- Logistica foi mantida como tabela própria para registrar dados de rastreamento e status de entrega.
+- Foi definida a chave primária id_logistica.
+- Foram mantidos os atributos data, status_entrega e codigo_rastreio.
+- Entrega foi criada como tabela de ligação entre Cliente, Pedido e Logistica.
+- A tabela Entrega possui id_cliente, id_pedido e id_logistica como chaves estrangeiras.
+- Essa decisão desacopla o pedido dos dados logísticos e permite registrar informações específicas da entrega.
+- Ponto de atenção: se cada Pedido tiver apenas uma Logistica, a tabela Entrega pode ser simplificada com id_logistica diretamente em Pedido.
+
+3. REGRAS DE INTEGRIDADE
+
+- Toda tabela principal deve possuir chave primária.
+- Todo Pedido deve referenciar um Cliente existente.
+- Todo Item Pedido deve referenciar um Pedido e um Produto existentes.
+- Toda Avaliação deve referenciar um Cliente e um Produto existentes.
+- Todo Pagamento deve referenciar um Pedido existente.
+- Um Pedido pode possuir Cupom, mas essa relação deve ser opcional.
+- Produto deve referenciar uma Categoria válida.
+- Produto deve possuir controle de Estoque, conforme a regra definida no modelo conceitual.
+- As tabelas especializadas de pagamento devem estar vinculadas à tabela Pagamento.
+
+4. NORMALIZAÇÃO E ORGANIZAÇÃO
+
+- O modelo lógico separa entidades principais em tabelas independentes.
+- Relacionamentos N:N foram resolvidos por tabelas associativas, como Item Pedido.
+- A especialização de Pagamento foi representada por tabelas separadas.
+- A separação de Cupom, Categoria, Estoque, Avaliação e Logistica reduz redundância e melhora a manutenção.
+- Algumas FKs do diagrama devem ser revisadas para evitar duplicidade e inconsistência, principalmente em Cliente, Pedido, Produto e Estoque.
+
+5. AJUSTES RECOMENDADOS NO MODELO LÓGICO
+
+- Remover idPedido da tabela Cliente.
+- Remover idProduto da tabela Pedido, mantendo a relação Pedido-Produto apenas por Item Pedido.
+- Corrigir duplicidade de idProduto em Estoque.
+- Definir claramente se a FK da relação Produto-Estoque ficará em Produto ou em Estoque.
+- Adicionar id_pagamento como PK/FK nas tabelas PagamentoCartao, PagamentoBoleto e PagamentoPix.
+- Padronizar nomes de atributos e FKs, evitando mistura entre idPedido, id_pedido, idProduto e id_produto.
+- Avaliar se a tabela Entrega é necessária ou se Logistica pode ser ligada diretamente a Pedido.
