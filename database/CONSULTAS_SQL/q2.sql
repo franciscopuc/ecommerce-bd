@@ -1,0 +1,3 @@
+SELECT *
+FROM produto
+WHERE preco BETWEEN 100 AND 5000;
