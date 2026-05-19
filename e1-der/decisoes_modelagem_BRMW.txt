@@ -1,0 +1,126 @@
+DECISÕES DE MODELAGEM – BRMW
+
+1. CONTEXTO GERAL
+O modelo representa um sistema de e-commerce com controle de clientes, pedidos, pagamentos, estoque, logística, avaliações e cupons.
+
+2. DECISÕES PRINCIPAIS
+
+2.1 CLIENTE
+- Um cliente pode realizar vários pedidos.
+- Telefones foram modelados como atributo multivalorado.
+- Endereço foi tratado como atributo composto:
+  rua, número, bairro, complemento e CEP.
+- CPF foi mantido como atributo único do cliente.
+
+2.2 PEDIDO
+- Pedido centraliza o fluxo comercial do sistema.
+- Um pedido pertence obrigatoriamente a um único cliente.
+- O pedido possui:
+  - data
+  - status
+  - valor_total
+- Um pedido pode possuir cupom.
+- Um pedido possui itens associados através da entidade ItemPedido.
+- Um pedido pode possuir informações de entrega/logística.
+
+2.3 ITEMPEDIDO
+- Criado para resolver relacionamento N:N entre Pedido e Produto.
+- Armazena:
+  - quantidade
+  - preço_unitário
+  - subtotal
+- Permite manter histórico de preços mesmo após alteração do produto.
+
+2.4 PRODUTO
+- Produto possui:
+  - nome
+  - descrição
+  - preço
+  - preço_comparação
+- Produto pode receber várias avaliações.
+- Produto pertence a uma categoria.
+- Produto possui controle de estoque.
+
+2.5 CATEGORIA
+- Uma categoria pode possuir vários produtos.
+- Cada produto pertence a apenas uma categoria.
+
+2.6 ESTOQUE
+- Controle separado da entidade Produto.
+- Permite evolução futura para múltiplos centros de estoque.
+- Foram definidos:
+  - quantidade
+  - estoque_minimo
+  - estoque_maximo
+
+2.7 AVALIAÇÃO
+- Cliente realiza avaliações de produtos.
+- Avaliação possui:
+  - nota
+  - comentário
+  - data
+- Um produto pode ter várias avaliações.
+
+2.8 PAGAMENTO
+- Foi utilizada especialização/generalização.
+- Entidade principal: Pagamento.
+- Subtipos:
+  - PagamentoCartao
+  - PagamentoPix
+  - PagamentoBoleto
+- A especialização foi modelada como:
+  - total
+  - disjunta
+- Motivo:
+  um pagamento deve possuir apenas um tipo específico.
+
+2.9 PAGAMENTO POR CARTÃO
+- Campos específicos:
+  - número_cartão
+  - nome_titular
+  - bandeira_cartão
+  - quantidade_parcelas
+
+2.10 PAGAMENTO PIX
+- Campos específicos:
+  - chave_pix
+  - data_expiração
+
+2.11 PAGAMENTO BOLETO
+- Campos específicos:
+  - código_barras
+  - data_vencimento
+
+2.12 CUPOM
+- Cupom foi separado para permitir reutilização.
+- Possui:
+  - código
+  - ativo
+  - desconto
+  - validade
+  - tipo_desconto
+- Um cupom pode ser utilizado em vários pedidos.
+
+2.13 LOGÍSTICA
+- Entidade separada para desacoplar entrega do pedido.
+- Possui:
+  - status_entrega
+  - código_rastreio
+  - data
+
+3. REGRAS DE NEGÓCIO IDENTIFICADAS
+
+- Cliente deve existir antes da criação do pedido.
+- Pedido deve possuir ao menos um item.
+- Produto pode existir sem avaliação.
+- Produto deve possuir controle de estoque.
+- Cada pagamento possui apenas um método.
+- Cupom pode ou não ser aplicado ao pedido.
+- Pedido pode ou não possuir entrega registrada inicialmente.
+
+4. NORMALIZAÇÃO E ORGANIZAÇÃO
+
+- Entidades foram separadas para reduzir redundância.
+- Atributos específicos foram isolados em especializações.
+- Relacionamentos N:N foram resolvidos por entidade associativa.
+- Estrutura preparada para futura expansão do sistema.
